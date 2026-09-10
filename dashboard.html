@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickBite: On-Demand Food Delivery Fleet Dispatch & Kitchen SLA Analytics | Executive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0F172A; color: #F8FAFC; padding: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #334155; }
+        .header-title h1 { font-size: 22px; font-weight: 700; color: #F8FAFC; margin-bottom: 4px; }
+        .header-title p { font-size: 13px; color: #94A3B8; }
+        .badge { background: #1E293B; border: 1px solid #334155; color: #FB923C; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .pulse { width: 8px; height: 8px; border-radius: 50%; background: #F43F5E; animation: pulse 1.8s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .kpi-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #94A3B8; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .kpi-val { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+        .kpi-sub { font-size: 12px; color: #94A3B8; }
+
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+        @media (max-width: 992px) { .charts-grid { grid-template-columns: 1fr; } }
+        .chart-box { background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 20px; position: relative; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .chart-title { font-size: 14px; font-weight: 700; color: #F8FAFC; }
+        .chart-actions { display: flex; gap: 8px; }
+        .btn-filter { background: transparent; border: 1px solid #334155; color: #94A3B8; font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+        .btn-filter.active { background: #FB923C; color: #FFFFFF; border-color: #FB923C; font-weight: 600; }
+
+        .table-box { background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 12px 14px; text-align: left; font-size: 12.5px; border-bottom: 1px solid #334155; }
+        th { color: #94A3B8; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        td { color: #F8FAFC; }
+        .status-pill { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .status-optimal { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+        .status-elevated { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">
+            <h1>QuickBite: On-Demand Food Delivery Fleet Dispatch & Kitchen SLA Analytics</h1>
+            <p>Enterprise Business Intelligence & Telemetry Console | Theme: Sunset Dark Ember (Dark Slate)</p>
+        </div>
+        <div class="badge">
+            <span class="pulse"></span> LIVE TELEMETRY STREAM
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        
+        <div class="kpi-card">
+            <div class="kpi-title">AVG ORDER-TO-DOOR TIME</div>
+            <div class="kpi-val" style="color: #84CC16">26.4 Min</div>
+            <div class="kpi-sub">-4.2m vs Q2 Metric (Target <30m)</div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-title">COURIER BATCHING DENSITY</div>
+            <div class="kpi-val" style="color: #FB923C">1.74 Orders</div>
+            <div class="kpi-sub">+18% Dispatch Fleet Efficiency</div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-title">KITCHEN PREP SLA MET</div>
+            <div class="kpi-val" style="color: #38BDF8">94.8%</div>
+            <div class="kpi-sub">Average Prep Latency: 12.2 Min</div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-title">ORDER DEFECT / REFUND RATE</div>
+            <div class="kpi-val" style="color: #F43F5E">1.12%</div>
+            <div class="kpi-sub">Lowest in Metropolitan Tier-1</div>
+        </div>
+        
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-box">
+            <div class="chart-header">
+                <div class="chart-title">12-Month Performance Trajectory vs Benchmark SLA</div>
+                <div class="chart-actions">
+                    <button class="btn-filter active">12M</button>
+                    <button class="btn-filter">QTD</button>
+                    <button class="btn-filter">YTD</button>
+                </div>
+            </div>
+            <canvas id="trajectoryChart" height="120"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-header">
+                <div class="chart-title">Segment Volume Breakdown</div>
+            </div>
+            <canvas id="breakdownChart" height="120"></canvas>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-box">
+            <div class="chart-header">
+                <div class="chart-title">Operational Latency by Milestone (Minutes)</div>
+            </div>
+            <canvas id="latencyChart" height="120"></canvas>
+        </div>
+        <div class="chart-box">
+            <div class="chart-header">
+                <div class="chart-title">Segment Margin Contribution</div>
+            </div>
+            <canvas id="donutChart" height="120"></canvas>
+        </div>
+    </div>
+
+    <div class="table-box">
+        <div class="chart-header">
+            <div class="chart-title">Recent Critical Telemetry Events & SLA Compliance</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Event ID</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Metric Value</th>
+                    <th>Latency</th>
+                    <th>Compliance Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>#EVT-8841</td>
+                    <td>2024-12-04</td>
+                    <td>Segment Alpha</td>
+                    <td>$1,420.50</td>
+                    <td>14.2m</td>
+                    <td><span class="status-pill status-optimal">OPTIMAL</span></td>
+                </tr>
+                <tr>
+                    <td>#EVT-8842</td>
+                    <td>2024-12-04</td>
+                    <td>Segment Beta</td>
+                    <td>$2,180.00</td>
+                    <td>28.5m</td>
+                    <td><span class="status-pill status-optimal">OPTIMAL</span></td>
+                </tr>
+                <tr>
+                    <td>#EVT-8843</td>
+                    <td>2024-12-05</td>
+                    <td>Segment Gamma</td>
+                    <td>$980.25</td>
+                    <td>42.1m</td>
+                    <td><span class="status-pill status-elevated">ELEVATED</span></td>
+                </tr>
+                <tr>
+                    <td>#EVT-8844</td>
+                    <td>2024-12-05</td>
+                    <td>Segment Alpha</td>
+                    <td>$3,410.80</td>
+                    <td>18.6m</td>
+                    <td><span class="status-pill status-optimal">OPTIMAL</span></td>
+                </tr>
+                <tr>
+                    <td>#EVT-8845</td>
+                    <td>2024-12-06</td>
+                    <td>Segment Delta</td>
+                    <td>$1,750.00</td>
+                    <td>21.4m</td>
+                    <td><span class="status-pill status-optimal">OPTIMAL</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        
+        // Trajectory Chart
+        new Chart(document.getElementById('trajectoryChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Actual Metric Index',
+                        data: [78.2, 79.5, 81.4, 83.2, 84.8, 85.9, 87.1, 88.4, 89.2, 90.5, 91.8, 92.4],
+                        borderColor: '#FB923C',
+                        backgroundColor: '#FB923C22',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#FB923C'
+                    },
+                    {
+                        label: 'Target SLA Benchmark (85%)',
+                        data: Array(12).fill(85),
+                        borderColor: '#84CC16',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { labels: { color: '#F8FAFC' } }
+                },
+                scales: {
+                    x: { grid: { color: '#334155' }, ticks: { color: '#94A3B8' } },
+                    y: { grid: { color: '#334155' }, ticks: { color: '#94A3B8' } }
+                }
+            }
+        });
+
+        // Breakdown Chart
+        new Chart(document.getElementById('breakdownChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'],
+                datasets: [{
+                    label: 'Volume',
+                    data: [420, 340, 290, 210, 150],
+                    backgroundColor: ['#FB923C', '#84CC16', '#38BDF8', '#F43F5E', '#94A3B8'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94A3B8' } },
+                    y: { grid: { color: '#334155' }, ticks: { color: '#94A3B8' } }
+                }
+            }
+        });
+
+        // Latency Chart
+        new Chart(document.getElementById('latencyChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'],
+                datasets: [{
+                    label: 'Latency (Min)',
+                    data: [14.2, 28.5, 42.1, 18.6],
+                    backgroundColor: '#FB923C',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94A3B8' } },
+                    y: { grid: { color: '#334155' }, ticks: { color: '#94A3B8' } }
+                }
+            }
+        });
+
+        // Donut Chart
+        new Chart(document.getElementById('donutChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Core Tier', 'Growth Tier', 'Emerging', 'Specialty'],
+                datasets: [{
+                    data: [48.2, 28.4, 16.2, 7.2],
+                    backgroundColor: ['#FB923C', '#84CC16', '#38BDF8', '#F43F5E'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#F8FAFC' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
